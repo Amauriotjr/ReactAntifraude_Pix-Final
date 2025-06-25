@@ -1,0 +1,24 @@
+{
+  "name": "project-bolt-sb1-wr2btz5c-(1)",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "lucide-react": "^0.514.0",
+    "nativewind": "^4.1.23",
+    "react-router-dom": "^7.6.2",
+    "recharts": "^2.15.3"
+  }
+}
