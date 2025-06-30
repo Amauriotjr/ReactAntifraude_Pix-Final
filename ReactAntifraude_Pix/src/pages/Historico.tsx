@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Search, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Search, AlertTriangle, Info } from 'lucide-react';
 
 interface Cliente {
   id: string;
@@ -16,6 +16,7 @@ interface Transacao {
   nome_destinatario: string;
   dispositivo: number;
   tipo_transacao: string;
+  motivo: string;
 }
 
 const Historico: React.FC = () => {
@@ -26,6 +27,7 @@ const Historico: React.FC = () => {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tooltip, setTooltip] = useState<{ show: boolean; text: string; id: string }>({ show: false, text: '', id: '' });
 
   useEffect(() => {
     if (!cliente?.id) {
@@ -78,15 +80,21 @@ const Historico: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm px-4 pt-4 pb-2 mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input type="text" placeholder="Pesquisar transação..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-green-600 focus:outline-none text-sm" />
+            <input
+              type="text"
+              placeholder="Pesquisar transação..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-green-600 focus:outline-none text-sm"
+            />
           </div>
           <div className="h-1 w-[97%] bg-banese-green rounded-full mx-auto" />
         </div>
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden text-sm">
           <div className="bg-banese-green text-white text-center font-semibold">
-            <div className="grid grid-cols-7 py-3">
+            <div className="grid grid-cols-8 py-3">
+              <div>Motivo</div>
               <div>Data</div>
               <div>Valor</div>
               <div>Chave PIX</div>
@@ -105,7 +113,20 @@ const Historico: React.FC = () => {
                 <div className="py-8 text-gray-500">Nenhuma transação encontrada.</div>
               ) : (
                 filtered.map(tx => (
-                  <div key={tx.id} className="grid grid-cols-7 py-3 items-center hover:bg-gray-50 transition">
+                  <div key={tx.id} className="grid grid-cols-8 py-3 items-center hover:bg-gray-50 transition">
+                    <div className="relative flex justify-center">
+  <Info
+    className="w-5 h-5 text-gray-600 cursor-pointer"
+    onMouseEnter={() => setTooltip({ show: true, text: tx.motivo, id: tx.id })}
+    onMouseLeave={() => setTooltip({ show: false, text: '', id: '' })}
+  />
+  {tooltip.show && tooltip.id === tx.id && (
+    <div className="absolute z-50 bg-gray-500 text-white text-xs rounded-xl px-4 py-2 shadow-lg top-full mt-2 max-w-xs whitespace-pre-wrap text-left leading-snug break-words">
+  {tooltip.text}
+</div>
+  )}
+</div>
+
                     <div>{tx.data} - {tx.hora}</div>
                     <div>R$ {tx.valor.toFixed(2)}</div>
                     <div>{tx.chavepix_destinatario}</div>
@@ -114,7 +135,11 @@ const Historico: React.FC = () => {
                     </div>
                     <div>{dispositivos[tx.dispositivo] || 'N/A'}</div>
                     <div>{tx.tipo_transacao}</div>
-                    <div><span className="px-2 py-1 rounded-full text-xs font-semibold text-green-600 border border-green-600">Concluída</span></div>
+                    <div>
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold text-green-600 border border-green-600">
+                        Concluída
+                      </span>
+                    </div>
                   </div>
                 ))
               )}

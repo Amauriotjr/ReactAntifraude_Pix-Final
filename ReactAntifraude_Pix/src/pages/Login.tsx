@@ -6,14 +6,16 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(false);
 
     const formData = new URLSearchParams();
-    formData.append("username", username);  // FastAPI espera "username"
+    formData.append("username", username);
     formData.append("password", password);
 
     try {
@@ -26,14 +28,16 @@ const Login: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Credenciais inválidas");
+        setError(true);
+        // Não exibe mais alert!
+        return;
       }
 
       const data = await response.json();
-      localStorage.setItem("token", data.access_token);  // Armazena o token
+      localStorage.setItem("token", data.access_token);
       navigate("/pesquisa");
     } catch (err: any) {
-      alert(err.message);
+      setError(true); // Qualquer erro ativa o visual do erro
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +69,9 @@ const Login: React.FC = () => {
                   placeholder="Usuário"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors text-gray-900 placeholder-gray-500"
+                  className={`w-full pl-10 pr-4 py-4 border-2 rounded-xl focus:outline-none transition-colors text-gray-900 placeholder-gray-500 ${
+                    error ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-green-500"
+                  }`}
                   required
                 />
               </div>
@@ -79,11 +85,20 @@ const Login: React.FC = () => {
                   placeholder="Senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors text-gray-900 placeholder-gray-500"
+                  className={`w-full pl-10 pr-4 py-4 border-2 rounded-xl focus:outline-none transition-colors text-gray-900 placeholder-gray-500 ${
+                    error ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-green-500"
+                  }`}
                   required
                 />
               </div>
             </div>
+
+            {/* Mensagem de erro visual */}
+            {error && (
+              <div className="text-center text-red-600 font-semibold mt-2">
+                Login ou senha incorretos
+              </div>
+            )}
 
             <button
               type="submit"
